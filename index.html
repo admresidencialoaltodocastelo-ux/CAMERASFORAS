@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a2f44">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Câmeras">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<title>Verificador Diário das Câmeras</title>
+<style>
+:root{--navy:#0a2f44;--navy2:#0f6a86;--bg:#eef4f7;--card:#fff;--line:#d9e5eb;--text:#0d1f2d;--muted:#5d7a8a;--ok:#12855a;--bad:#d92d20;--pri:#0e7490;--warn:#b45309;--ring:rgba(14,116,144,.14)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.4;background-image:radial-gradient(1200px 420px at 50% -140px,#dbeaf0 0,rgba(219,234,240,0) 70%);background-repeat:no-repeat}
+.hidden{display:none!important}
+.top{position:sticky;top:0;z-index:20;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;padding-top:max(14px,env(safe-area-inset-top));box-shadow:0 6px 18px rgba(10,47,68,.18)}
+.brand{font-weight:800;font-size:.92rem;letter-spacing:.4px;text-shadow:0 1px 2px rgba(0,0,0,.15)}
+.hbtn{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.22);border-radius:10px;padding:8px 13px;font-size:.85rem;font-weight:700;cursor:pointer;white-space:nowrap}
+main{max-width:760px;margin:0 auto;padding:16px 14px 40px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 8px 22px rgba(13,31,45,.06)}
+.center{text-align:center}
+h2{margin:0 0 6px;font-size:1.3rem}
+h3{margin:0 0 10px;font-size:1.05rem}
+.muted{color:var(--muted);font-size:.9rem}
+.stack>*+*{margin-top:12px}
+.btn{display:block;width:100%;min-height:52px;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--text);font-size:1rem;font-weight:700;cursor:pointer}
+.btn:active{transform:scale(.99)}
+.btn.pri{background:linear-gradient(135deg,#12829f,#0b5f77);border-color:#0b5f77;color:#fff;box-shadow:0 6px 14px rgba(11,95,119,.22)}
+.btn.ok{background:linear-gradient(135deg,#17a06a,#0f7a52);border-color:#0f7a52;color:#fff;box-shadow:0 6px 14px rgba(15,122,82,.2)}
+.btn.bad{background:linear-gradient(135deg,#e3493d,#bf2317);border-color:#bf2317;color:#fff}
+.btn.sm{display:inline-block;width:auto;min-height:38px;padding:6px 12px;font-size:.85rem;border-radius:9px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+label.f{display:block;font-size:.9rem;color:var(--muted);font-weight:600}
+input[type=text],input[type=email],input[type=password],select,textarea{width:100%;margin-top:6px;padding:14px;border:1.5px solid #c3d4dd;border-radius:12px;font-size:1rem;background:#fff;color:var(--text);font-family:inherit}
+select{appearance:none;-webkit-appearance:none;font-weight:700;padding-right:44px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235d7a8a' stroke-width='3' stroke-linecap='round'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 15px center;cursor:pointer}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px var(--ring)}
+textarea{min-height:110px;resize:vertical}
+.aviso{background:#fff6e5;border:1.5px solid #f0b429;color:#7a4a05;border-radius:12px;padding:14px;font-weight:700;font-size:.95rem}
+.chk{display:flex;gap:12px;align-items:center;margin-top:12px;font-weight:700;cursor:pointer}
+.chk input{width:26px;height:26px;flex:none;accent-color:var(--pri)}
+.msg{min-height:1.2em;color:var(--bad);font-size:.9rem;font-weight:600}
+.msg.ok{color:var(--ok)}
+.warn{background:#fee2e2;border:1px solid #fca5a5;color:#7f1d1d;padding:12px;border-radius:12px;margin-bottom:14px;font-size:.9rem}
+/* inspeção */
+.bar{position:sticky;top:50px;z-index:10;background:var(--bg);padding:8px 0 10px}
+.bar .box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.bar .row{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:700;font-size:.95rem}
+.prog{height:8px;background:var(--line);border-radius:9px;overflow:hidden;margin-top:8px}
+.prog i{display:block;height:100%;background:var(--ok);width:0;transition:width .2s}
+.legend{font-size:.82rem;color:var(--muted);margin:2px 0 10px}
+.gh{margin:18px 0 8px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:800;color:var(--navy)}
+.gh span.n{background:var(--navy);color:#fff;border-radius:99px;padding:2px 10px;font-size:.8rem}
+.gh span.d{background:#dcfce7;color:#166534;border-radius:99px;padding:2px 10px;font-size:.8rem}
+.cam{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 8px 8px 14px;margin-bottom:8px}
+.cam .cn{flex:1;font-weight:700;font-size:.95rem;word-break:break-word}
+.cam button{flex:none;width:54px;height:48px;border:0;border-radius:11px;font-size:1.4rem;color:#fff;cursor:pointer;font-weight:800}
+.cam .g{background:var(--ok)}.cam .r{background:var(--bad)}
+.cam button:active{filter:brightness(.85)}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.6);display:flex;align-items:flex-end;justify-content:center;z-index:50;padding:12px}
+.mbox{background:#fff;border-radius:18px;padding:22px;width:100%;max-width:460px}
+@media(min-width:600px){.modal{align-items:center}}
+/* adm */
+.tabs{display:flex;gap:6px;margin:12px 0 16px;border-bottom:2px solid var(--line)}
+.tab{flex:1;background:none;border:0;padding:12px 6px;font-weight:700;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;font-size:.95rem}
+.tab.on{color:var(--pri);border-bottom-color:var(--pri)}
+.dayh{display:flex;justify-content:space-between;align-items:center;margin:20px 0 8px;font-weight:800;color:var(--navy);gap:8px}
+.it{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer}
+.it b{display:block}
+.tag{display:inline-block;padding:3px 10px;border-radius:99px;font-size:.78rem;font-weight:700;white-space:nowrap}
+.tag.g{background:#dcfce7;color:#166534}.tag.r{background:#fee2e2;color:#991b1b}.tag.y{background:#fef3c7;color:#92400e}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.95rem;margin:10px 0}
+.kv span:nth-child(odd){color:var(--muted)}
+.li{padding:7px 10px;border-radius:8px;margin-bottom:5px;font-weight:600;font-size:.9rem}
+.li.r{background:#fee2e2;color:#7f1d1d}.li.g{background:#f0fdf4;color:#14532d}
+details{margin-top:10px}summary{cursor:pointer;font-weight:700;padding:8px 0}
+.urow{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.urow b{flex:1}
+.row2{display:flex;gap:8px}.row2>*{flex:1}
+.btn.inst{background:#fff;border-color:var(--pri);color:var(--pri);font-weight:800}
+.hint{font-size:.8rem;color:var(--muted);text-align:center;margin:0}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">📹 VERIFICADOR DIÁRIO DAS CÂMERAS</div>
+  <button id="hdrBtn" class="hbtn hidden"></button>
+</header>
+
+<main>
+  <div id="cfgWarn" class="warn hidden"><b>Supabase não configurado.</b> Abra o arquivo index.html e preencha <code>https://jcjklywdlxfzpmykrphp.supabase.co</code> e <code>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpjamtseXdkbHhmenBteWtycGhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwMTg4OTgsImV4cCI6MjExMDU5NDg5OH0.kC5Au-dz4WxzPaEo3fFLcT37kkWC8uJLihQ4HdjJ41k</code> no começo do script.</div>
+
+  <!-- HOME -->
+  <section id="v-home" class="view">
+    <div class="card center stack">
+      <h2>Primeiro acesso</h2>
+      <p class="muted">Escolha como deseja entrar:</p>
+      <button class="btn pri" id="goUser">👤 ACESSO USUÁRIO</button>
+      <button class="btn" id="goAdm">🔐 ACESSO ADM</button>
+      <button class="btn inst hidden" id="btnInstall">📲 INSTALAR NO CELULAR</button>
+      <p class="hint hidden" id="iosHint">No iPhone: toque em <b>Compartilhar</b> ⬆ e depois em <b>Adicionar à Tela de Início</b>.</p>
+    </div>
+  </section>
+
+  <!-- LOGIN USUÁRIO -->
+  <section id="v-ulogin" class="view hidden">
+    <form id="fUser" class="card stack" autocomplete="off">
+      <h2>Acesso Usuário</h2>
+      <label class="f">Selecione seu nome
+        <select id="uNome" required><option value="">Carregando nomes...</option></select>
+      </label>
+      <div class="aviso">⚠ AVISO: USE SEMPRE O CELULAR DA EMPRESA PARA REALIZAR ESTE SERVIÇO.</div>
+      <label class="chk"><input type="checkbox" id="uCiente"> CIENTE</label>
+      <button class="btn pri" id="uGo" type="submit" disabled>CONTINUAR</button>
+      <p class="msg" id="uMsg"></p>
+      <p class="hint">Não achou seu nome? Procure o ADM.</p>
+    </form>
+  </section>
+
+  <!-- INÍCIO INSPEÇÃO -->
+  <section id="v-ustart" class="view hidden">
+    <div class="card center stack">
+      <h2 id="uOla"></h2>
+      <p class="muted" id="uDraftInfo"></p>
+      <button class="btn ok" id="btnComecar">▶ COMEÇAR INSPEÇÃO</button>
+      <button class="btn sm hidden" id="btnRecomecar">Recomeçar do zero</button>
+    </div>
+  </section>
+
+  <!-- INSPEÇÃO -->
+  <section id="v-uinsp" class="view hidden">
+    <div class="bar"><div class="box">
+      <div class="row"><span id="progTxt"></span><button class="btn sm" id="btnUndo">↩ Desfazer</button></div>
+      <div class="prog"><i id="progBar"></i></div>
+    </div></div>
+    <div class="legend">Toque no <b style="color:var(--ok)">✔ verde</b> se a câmera está funcionando ou no <b style="color:var(--bad)">✖ vermelho</b> se está fora. A câmera sai da lista.</div>
+    <div id="listaInsp"></div>
+    <button class="btn pri" id="btnFinalizar" style="margin-top:18px" disabled>FINALIZAR</button>
+  </section>
+
+  <!-- CONCLUÍDO -->
+  <section id="v-udone" class="view hidden">
+    <div class="card center stack">
+      <h2>✅ Inspeção enviada!</h2>
+      <p id="doneTxt" class="muted"></p>
+      <button class="btn pri" id="btnDoneHome">Voltar ao início</button>
+    </div>
+  </section>
+
+  <!-- LOGIN ADM -->
+  <section id="v-alogin" class="view hidden">
+    <form id="fAdm" class="card stack" style="max-width:420px;margin:0 auto">
+      <h2>Acesso ADM</h2>
+      <label class="f">E-mail<input type="email" id="aEmail" autocomplete="username" required></label>
+      <label class="f">Senha<input type="password" id="aSenha" autocomplete="current-password" required></label>
+      <label class="chk" style="font-weight:600;font-size:.9rem"><input type="checkbox" id="aLembrar"> Salvar senha neste aparelho</label>
+      <button class="btn pri" type="submit">ENTRAR</button>
+      <p class="msg" id="aMsg"></p>
+      <p class="hint">Você continua logado até tocar em <b>Sair</b>.</p>
+    </form>
+  </section>
+
+  <!-- ADM -->
+  <section id="v-adm" class="view hidden">
+    <div class="tabs">
+      <button class="tab on" data-t="insp">Inspeções</button>
+      <button class="tab" data-t="usu">Usuários</button>
+    </div>
+    <div id="t-insp"><div id="admLista"></div></div>
+    <div id="t-usu" class="hidden">
+      <form id="fNovoUsu" class="row2" style="margin-bottom:14px">
+        <input type="text" id="novoUsu" placeholder="Novo nome" autocapitalize="characters" required style="margin-top:0">
+        <button class="btn pri" type="submit" style="flex:none;width:auto">Adicionar</button>
+      </form>
+      <div id="admUsu"></div>
+    </div>
+  </section>
+
+  <!-- DETALHE ADM -->
+  <section id="v-adet" class="view hidden"><div id="detBox"></div></section>
+</main>
+
+<div id="modal" class="modal hidden"><div class="mbox" id="mbox"></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+/* ============ CONFIGURAÇÃO SUPABASE ============ */
+const SUPABASE_URL = 'https://jcjklywdlxfzpmykrphp.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpjamtseXdkbHhmenBteWtycGhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwMTg4OTgsImV4cCI6MjExMDU5NDg5OH0.kC5Au-dz4WxzPaEo3fFLcT37kkWC8uJLihQ4HdjJ41k';
+/* ================================================= */
+
+const CONFIGURADO = !SUPABASE_URL.includes('COLE_AQUI');
+const db = CONFIGURADO ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:false}}) : null;
+
+const GRUPOS = [
+ {id:1,nome:'Câmeras das quadras',itens:['Q22 L11','ESQ Q21','Q21 L15','Q20 L15 / Q21 L18','Q19 L15 / Q20 L18','Q19 L18 / Q20','Q19 L18 / Q17 L17','Q19 L01 - Q14 L10','Q18 L01 - Q05 L01','Q17 L17 / Q16','Q17 L32 / Q19','Q17 L32 / Q16 L12','Q17 L01 SUBINDO','Q16 L25 / Q17','Q16 L20 / Q17','Q16 L12 / Q15','Q16 L08 SUBIND','Q16 L05 - DESCE','Q16 L01 / Q15 L04','Q15 L11 / Q16 L25','ESQ Q15 L01 SUB','Q14 L11','Q14 L10 - Q13','Q14 L10 - Q13','Q13 SUBINDO PRA...','Q13 L04','Q12 L01 - Q13 L05','Q12 L01 FUNDO','Q12 L11 - Q13 L14','Q12 L11 - Q11 L14']},
+ {id:2,nome:'Câmeras internas',itens:['Q11 L14 - Q10','Q11 L11 / Q10 L15','Q11 L01 / Q12 L01','Q10 L15 - Q07','Q10 L14 - Q05 L01','Q10 L01 / Q11 L04','Q09 L01 / Q10 L04','Q09 L01 - Q10 L04','Q09 L08 / Q08 L08','Q08 L01 SUBINDO','Q07 L14 DESCENDO','Q07 L14 SUBINDO','ESQ Q05 - Q06 L10','QUADRA VOLEI','CAMPO','PARQUE AREIA','AREA SOCIAL INT','CORREDOR','AREA SOCIAL EXTERNA','PRACA 2','CAMINHO PRA','PRACA 02','PORTARIA FRENTE','PORTARIA TR','SALA ADM','DEPOSITO','Entrada Lixeira','MONITORAMENTO FRENTE','MONITORAMENTO TR']},
+ {id:3,nome:'Câmeras do perímetro',itens:['SPEED CACIMBA P','SAERP','SAERP','SAERP','FRENTE RESIDENC','FRENTE RESIDENC','FRENTE RESIDENCIAL SUBI','FRENTE RESIDENCIAL - DES','FRENTE AVENIDA EXTERNA','SPEED ROTATORIA','FRENTE AVENIDA SUBINDO','FRENTE RESIDENCIAL','ENTRADA RESERVATORIO','LIXEIRA - PORT','MURO GALINHEIRO','MURO CACIMBA-G','MURO CACIMBA G','MURO CACIMBA_G','MURO CACIMBA--G','MURO CAM 1','MURO INTERNO ESQUERDO','MURO INTERNO DIREITA','MURO Q08 L01','ENTRADA CACIMBA PQ','CACIMBA PQ 01','CACIMBA PQ 02','SPEED CACIMBA G']},
+ {id:4,nome:'Câmeras da vigilância solidária',itens:['LPR','ENTRADA URAPURU','SPEED URAPURA','PORTAL SAIDA FRENTE','R ENTRADA FORTALEZA','R ENTRADA FORTALEZA II','SAIDA FORTALEZA','R FORTALEZA','SAIDA FORTALEZA','PORTAL SAIDA COSTAS','RUA SAIDA FORTALEZA','ALTO FORTALEZA','ALTO DO CASTELO SUBINDO','SPEED ALTO DO CASTELO','SPEED 04']}
+];
+const CAM = {}; let TOTAL = 0;
+GRUPOS.forEach(g => g.itens.forEach((n,i) => { CAM[g.id+'-'+i] = {n, g:g.id}; TOTAL++; }));
+const gname = g => g.id + ' - ' + g.nome;
+
+/* ---------- utilidades ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim().replace(/\s+/g,' ');
+const TZ = 'America/Sao_Paulo';
+const hojeSP = () => new Date().toLocaleDateString('en-CA',{timeZone:TZ});
+const fmtHora = t => new Date(t).toLocaleTimeString('pt-BR',{timeZone:TZ,hour:'2-digit',minute:'2-digit'});
+const fmtDH = t => new Date(t).toLocaleString('pt-BR',{timeZone:TZ,dateStyle:'short',timeStyle:'short'});
+const fmtDia = d => d.split('-').reverse().join('/');
+
+const VIEWS = ['home','ulogin','ustart','uinsp','udone','alogin','adm','adet'];
+let hdrFn = null;
+function go(v, hdrLabel, fn){
+  VIEWS.forEach(x => $('v-'+x).classList.toggle('hidden', x !== v));
+  const b = $('hdrBtn');
+  if (hdrLabel){ b.textContent = hdrLabel; b.classList.remove('hidden'); hdrFn = fn; }
+  else { b.classList.add('hidden'); hdrFn = null; }
+  window.scrollTo(0,0);
+}
+$('hdrBtn').onclick = () => hdrFn && hdrFn();
+const toHome = () => go('home');
+if (!CONFIGURADO) $('cfgWarn').classList.remove('hidden');
+
+/* ---------- lista de nomes (usuário) ---------- */
+let NOMES = null;
+const nomeVal = () => { const s = $('uNome'), t = $('uNomeTxt'); return (s ? s.value : (t ? t.value : '')) || ''; };
+const nomeOk = () => !!nomeVal().trim();
+const limparNome = () => { const s = $('uNome'), t = $('uNomeTxt'); if (s) s.value = ''; if (t) t.value = ''; };
+function syncBtn(){ $('uGo').disabled = !(nomeOk() && $('uCiente').checked); }
+function preencherNomes(lista){
+  const sel = $('uNome'); if (!sel) return;
+  const atual = sel.value;
+  sel.innerHTML = '<option value="">— Escolha seu nome —</option>' +
+    lista.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  if (atual && lista.includes(atual)) sel.value = atual;
+  syncBtn();
+}
+function usarTexto(){
+  const sel = $('uNome'); if (!sel) return;
+  const inp = document.createElement('input');
+  inp.type = 'text'; inp.id = 'uNomeTxt'; inp.placeholder = 'Ex.: PAULO';
+  inp.autocapitalize = 'characters'; inp.autocomplete = 'off';
+  inp.oninput = syncBtn;
+  sel.replaceWith(inp);
+  syncBtn();
+}
+async function carregarNomes(){
+  const sel = $('uNome');
+  if (!db){ if (sel) sel.innerHTML = '<option value="">Sistema não configurado</option>'; return; }
+  if (NOMES){ preencherNomes(NOMES); return; }
+  if (sel) sel.innerHTML = '<option value="">Carregando nomes...</option>';
+  const {data, error} = await db.rpc('listar_usuarios');
+  if (error){ usarTexto(); $('uMsg').textContent = ''; return; }
+  NOMES = (data || []).map(r => typeof r === 'string' ? r : (r && (r.nome || r.listar_usuarios)) || '').filter(Boolean);
+  if (!NOMES.length){ usarTexto(); return; }
+  preencherNomes(NOMES);
+}
+document.addEventListener('change', e => { if (e.target && (e.target.id === 'uNome' || e.target.id === 'uCiente')) syncBtn(); });
+
+/* ---------- ADM: lembrar senha ---------- */
+const CK = 'vdc_adm_cred';
+const lerCred = () => { try { const v = localStorage.getItem(CK); return v ? JSON.parse(atob(v)) : null; } catch(e){ return null; } };
+const salvarCred = (email, senha) => { try { localStorage.setItem(CK, btoa(JSON.stringify({email, senha}))); } catch(e){} };
+const apagarCred = () => { try { localStorage.removeItem(CK); } catch(e){} };
+(function(){
+  const c = lerCred();
+  if (c && c.email){ $('aEmail').value = c.email; $('aSenha').value = c.senha || ''; $('aLembrar').checked = true; }
+})();
+
+/* ---------- PWA: instalar + offline ---------- */
+let instEvt = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); instEvt = e; $('btnInstall').classList.remove('hidden'); });
+window.addEventListener('appinstalled', () => { $('btnInstall').classList.add('hidden'); instEvt = null; });
+$('btnInstall').onclick = async () => {
+  if (!instEvt) return;
+  instEvt.prompt();
+  try { await instEvt.userChoice; } catch(e){}
+  instEvt = null; $('btnInstall').classList.add('hidden');
+};
+const standalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !standalone()) $('iosHint').classList.remove('hidden');
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+
+/* ---------- HOME ---------- */
+$('goUser').onclick = () => { limparNome(); $('uCiente').checked=false; $('uGo').disabled=true; $('uMsg').textContent=''; go('ulogin','← Início',toHome); carregarNomes(); };
+$('goAdm').onclick = async () => {
+  if (!db) return alert('Configure o Supabase primeiro.');
+  const {data} = await db.auth.getSession();
+  if (data.session) abrirAdm(); else { $('aMsg').textContent=''; go('alogin','← Início',toHome); }
+};
+
+/* ============ USUÁRIO ============ */
+const S = {usuario:null, res:{}, ordem:[]};
+const DK = 'vdc_draft';
+const salvarDraft = () => { try{ localStorage.setItem(DK, JSON.stringify({u:S.usuario,d:hojeSP(),res:S.res,ordem:S.ordem})); }catch(e){} };
+const lerDraft = u => { try{ const d=JSON.parse(localStorage.getItem(DK)); if(d && d.u===u && d.d===hojeSP()) return d; }catch(e){} return null; };
+const limparDraft = () => { try{ localStorage.removeItem(DK); }catch(e){} };
+
+$('uCiente').onchange = syncBtn;
+$('fUser').onsubmit = async e => {
+  e.preventDefault();
+  const msg = $('uMsg'); msg.textContent = '';
+  if (!db) { msg.textContent = 'Sistema não configurado.'; return; }
+  const nome = norm(nomeVal());
+  if (!nome) { msg.textContent = 'Escolha seu nome na lista.'; return; }
+  $('uGo').disabled = true;
+  const {data, error} = await db.rpc('verificar_usuario', {p_nome: nome});
+  syncBtn();
+  if (error) { msg.textContent = 'Erro de conexão. Tente novamente.'; return; }
+  if (!data) { msg.textContent = 'Nome não encontrado na lista. Procure o ADM.'; return; }
+  S.usuario = data; S.res = {}; S.ordem = [];
+  const d = lerDraft(data);
+  if (d){ S.res = d.res; S.ordem = d.ordem; }
+  const feitas = Object.keys(S.res).length;
+  $('uOla').textContent = 'Olá, ' + data + '!';
+  $('uDraftInfo').textContent = feitas ? `Você já marcou ${feitas} de ${TOTAL} câmeras hoje.` : 'Quando estiver pronto, inicie a inspeção das câmeras.';
+  $('btnComecar').textContent = feitas ? '▶ CONTINUAR INSPEÇÃO' : '▶ COMEÇAR INSPEÇÃO';
+  $('btnRecomecar').classList.toggle('hidden', !feitas);
+  go('ustart','← Início',toHome);
+};
+$('btnRecomecar').onclick = () => {
+  if (!confirm('Apagar o progresso e recomeçar?')) return;
+  S.res={}; S.ordem=[]; limparDraft(); iniciarInsp();
+};
+$('btnComecar').onclick = iniciarInsp;
+
+function iniciarInsp(){
+  renderInsp();
+  go('uinsp','Sair',() => { if(confirm('Sair da inspeção? Seu progresso fica salvo neste celular.')) toHome(); });
+}
+function renderInsp(){
+  const feitas = Object.keys(S.res).length, falta = TOTAL - feitas;
+  $('progTxt').textContent = falta ? `Faltam ${falta} de ${TOTAL}` : 'Tudo marcado ✔';
+  $('progBar').style.width = (feitas/TOTAL*100) + '%';
+  $('btnFinalizar').disabled = falta > 0;
+  $('btnUndo').disabled = !S.ordem.length;
+  $('listaInsp').innerHTML = GRUPOS.map(g => {
+    const pend = g.itens.map((n,i)=>[g.id+'-'+i,n]).filter(([id]) => !S.res[id]);
+    return `<div class="gh"><span>${esc(gname(g))}</span>${pend.length?`<span class="n">${pend.length}</span>`:'<span class="d">✔ concluído</span>'}</div>` +
+      pend.map(([id,n]) => `<div class="cam" data-id="${id}"><span class="cn">${esc(n)}</span><button class="g" data-v="ok" aria-label="Funcionando">✔</button><button class="r" data-v="fora" aria-label="Fora">✖</button></div>`).join('');
+  }).join('');
+}
+$('listaInsp').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const id = b.parentElement.dataset.id;
+  S.res[id] = b.dataset.v; S.ordem.push(id);
+  salvarDraft(); renderInsp();
+};
+$('btnUndo').onclick = () => {
+  const id = S.ordem.pop(); if (!id) return;
+  delete S.res[id]; salvarDraft(); renderInsp();
+};
+
+/* finalizar */
+function modal(html){ $('mbox').innerHTML = html; $('modal').classList.remove('hidden'); }
+function fecharModal(){ $('modal').classList.add('hidden'); }
+$('btnFinalizar').onclick = () => modal(`
+  <h3>Deseja adicionar uma observação?</h3>
+  <div class="row2"><button class="btn pri" id="mSim">SIM</button><button class="btn" id="mNao">NÃO</button></div>
+  <button class="btn sm" id="mCan" style="margin-top:14px">Cancelar</button>`);
+$('modal').onclick = e => {
+  const id = e.target.id;
+  if (id === 'mCan' || id === 'modal') fecharModal();
+  else if (id === 'mNao') enviar('');
+  else if (id === 'mSim') {
+    $('mbox').innerHTML = `<h3>Observação</h3><textarea id="mObs" maxlength="500" placeholder="Escreva aqui..."></textarea>
+      <div class="row2" style="margin-top:12px"><button class="btn" id="mCan">Cancelar</button><button class="btn pri" id="mFim">FINALIZAR</button></div>`;
+    $('mObs').focus();
+  }
+  else if (id === 'mFim') enviar($('mObs').value);
+};
+async function enviar(obs){
+  modal('<h3>Enviando...</h3><p class="muted">Aguarde.</p>');
+  const fora = Object.entries(S.res).filter(([,v]) => v==='fora').map(([id]) => ({id, n:CAM[id].n}));
+  const {error} = await db.rpc('registrar_inspecao', {p_usuario:S.usuario, p_ciente:true, p_fora:fora, p_total:TOTAL, p_obs:obs.trim()||null});
+  if (error){
+    modal(`<h3>Não foi possível enviar</h3><p class="muted">Verifique a internet. Seu progresso continua salvo.</p><button class="btn pri" id="mCan">OK</button>`);
+    return;
+  }
+  limparDraft(); fecharModal();
+  $('doneTxt').textContent = `${TOTAL - fora.length} funcionando • ${fora.length} fora. O ADM já pode ver sua inspeção.`;
+  S.res={}; S.ordem=[]; S.usuario=null;
+  go('udone');
+}
+$('btnDoneHome').onclick = toHome;
+
+/* ============ ADM ============ */
+const ADM = {lista:[], atual:null};
+$('fAdm').onsubmit = async e => {
+  e.preventDefault();
+  const m = $('aMsg'); m.textContent = 'Entrando...';
+  const email = $('aEmail').value.trim(), senha = $('aSenha').value;
+  const {error} = await db.auth.signInWithPassword({email, password:senha});
+  if (error){ m.textContent = 'Login ou senha inválidos.'; return; }
+  if ($('aLembrar').checked) salvarCred(email, senha); else apagarCred();
+  m.textContent=''; $('aSenha').value=''; abrirAdm();
+};
+function abrirAdm(){ go('adm','Sair', async () => { await db.auth.signOut(); toHome(); }); trocaTab('insp'); }
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => trocaTab(t.dataset.t));
+function trocaTab(t){
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x.dataset.t===t));
+  $('t-insp').classList.toggle('hidden', t!=='insp');
+  $('t-usu').classList.toggle('hidden', t!=='usu');
+  if (t==='insp') carregarInsp(); else carregarUsu();
+}
+
+async function carregarInsp(){
+  const box = $('admLista'); box.innerHTML = '<p class="muted">Carregando...</p>';
+  const {data, error} = await db.from('inspecoes').select('id,usuario,ciente,criado_em,dia,fora,total,observacao').order('criado_em',{ascending:false}).limit(300);
+  if (error){ box.innerHTML = '<p class="msg">Erro ao carregar.</p>'; return; }
+  ADM.lista = data;
+  if (!data.length){ box.innerHTML = '<div class="card center muted">Nenhuma inspeção registrada.</div>'; return; }
+  const dias = {}; data.forEach(i => (dias[i.dia] = dias[i.dia] || []).push(i));
+  box.innerHTML = Object.keys(dias).sort().reverse().map(d => `
+    <div class="dayh"><span>📅 ${fmtDia(d)} <span class="muted">(${dias[d].length})</span></span>
+      <button class="btn sm bad" data-delday="${d}">Apagar dia</button></div>` +
+    dias[d].map(i => `<div class="it" data-open="${i.id}">
+      <div><b>${esc(i.usuario)}</b><span class="muted">${fmtHora(i.criado_em)} • ${i.ciente?'Ciente ✔':'Sem ciente'}</span></div>
+      ${i.fora.length ? `<span class="tag r">${i.fora.length} fora</span>` : '<span class="tag g">Tudo OK</span>'}</div>`).join('')
+  ).join('');
+}
+$('admLista').onclick = async e => {
+  const del = e.target.closest('[data-delday]');
+  if (del){
+    const d = del.dataset.delday;
+    if (!confirm(`Apagar TODAS as inspeções de ${fmtDia(d)}? Não dá para desfazer.`)) return;
+    const {error} = await db.from('inspecoes').delete().eq('dia', d);
+    if (error) return alert('Erro ao apagar.');
+    return carregarInsp();
+  }
+  const it = e.target.closest('[data-open]');
+  if (it) abrirDet(it.dataset.open);
+};
+
+function abrirDet(id){
+  const i = ADM.lista.find(x => x.id === id); if (!i) return;
+  ADM.atual = i;
+  const setFora = new Set(i.fora.map(f => f.id));
+  const foraPorG = GRUPOS.map(g => ({g, n: i.fora.filter(f => +f.id.split('-')[0]===g.id).map(f=>f.n)})).filter(x => x.n.length);
+  const okPorG = GRUPOS.map(g => ({g, n: g.itens.filter((_,k) => !setFora.has(g.id+'-'+k))})).filter(x => x.n.length);
+  const nOk = i.total - i.fora.length;
+  $('detBox').innerHTML = `
+    <div class="card">
+      <h2>Inspeção de ${esc(i.usuario)}</h2>
+      <div class="kv">
+        <span>Data/hora</span><span>${fmtDH(i.criado_em)}</span>
+        <span>Ciente</span><span>${i.ciente ? '✔ Sim (usar celular da empresa)' : 'Não'}</span>
+        <span>Funcionando</span><span><b style="color:var(--ok)">${nOk}</b></span>
+        <span>Fora</span><span><b style="color:var(--bad)">${i.fora.length}</b></span>
+        <span>Observação</span><span>${i.observacao ? esc(i.observacao) : '—'}</span>
+      </div>
+      <div class="row2" style="margin-bottom:6px">
+        <button class="btn pri" id="btnPdf">📄 GERAR PDF</button>
+        <button class="btn bad" id="btnDelInsp">🗑 APAGAR</button>
+      </div>
+      <h3 style="margin-top:18px;color:var(--bad)">Câmeras fora (${i.fora.length})</h3>
+      ${foraPorG.length ? foraPorG.map(x => `<div class="muted" style="margin:8px 0 4px;font-weight:700">${esc(gname(x.g))}</div>` + x.n.map(n=>`<div class="li r">✖ ${esc(n)}</div>`).join('')).join('') : '<p class="muted">Nenhuma câmera fora. 🎉</p>'}
+      <details><summary style="color:var(--ok)">Câmeras funcionando (${nOk})</summary>
+        ${okPorG.map(x => `<div class="muted" style="margin:8px 0 4px;font-weight:700">${esc(gname(x.g))}</div>` + x.n.map(n=>`<div class="li g">✔ ${esc(n)}</div>`).join('')).join('')}
+      </details>
+    </div>`;
+  go('adet','← Voltar',() => go('adm','Sair', async () => { await db.auth.signOut(); toHome(); }));
+  $('btnPdf').onclick = () => gerarPDF(i);
+  $('btnDelInsp').onclick = async () => {
+    if (!confirm('Apagar esta inspeção?')) return;
+    const {error} = await db.from('inspecoes').delete().eq('id', i.id);
+    if (error) return alert('Erro ao apagar.');
+    abrirAdm();
+  };
+}
+
+/* usuários */
+async function carregarUsu(){
+  NOMES = null;
+  const box = $('admUsu'); box.innerHTML = '<p class="muted">Carregando...</p>';
+  const {data, error} = await db.from('usuarios').select('id,nome').order('nome');
+  if (error){ box.innerHTML = '<p class="msg">Erro ao carregar.</p>'; return; }
+  box.innerHTML = data.map(u => `<div class="urow"><b>${esc(u.nome)}</b>
+    <button class="btn sm" data-ed="${u.id}" data-nome="${esc(u.nome)}">Editar</button>
+    <button class="btn sm bad" data-rm="${u.id}" data-nome="${esc(u.nome)}">Excluir</button></div>`).join('') || '<p class="muted">Nenhum usuário.</p>';
+}
+$('fNovoUsu').onsubmit = async e => {
+  e.preventDefault();
+  const nome = norm($('novoUsu').value); if (!nome) return;
+  const {error} = await db.from('usuarios').insert({nome});
+  if (error) return alert(error.code==='23505' ? 'Esse nome já existe.' : 'Erro ao adicionar.');
+  $('novoUsu').value=''; carregarUsu();
+};
+$('admUsu').onclick = async e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.ed){
+    const novo = prompt('Novo nome:', b.dataset.nome); if (novo===null) return;
+    const nome = norm(novo); if (!nome) return;
+    const {error} = await db.from('usuarios').update({nome}).eq('id', b.dataset.ed);
+    if (error) return alert(error.code==='23505' ? 'Esse nome já existe.' : 'Erro ao editar.');
+  } else if (b.dataset.rm){
+    if (!confirm(`Excluir ${b.dataset.nome}?`)) return;
+    const {error} = await db.from('usuarios').delete().eq('id', b.dataset.rm);
+    if (error) return alert('Erro ao excluir.');
+  }
+  carregarUsu();
+};
+
+/* ============ PDF ============ */
+function gerarPDF(i){
+  if (!window.jspdf) return alert('Biblioteca de PDF não carregou. Verifique a internet.');
+  const doc = new window.jspdf.jsPDF({unit:'mm', format:'a4'});
+  const W = 210, M = 14; let y = M;
+  const quebra = n => { if (y + n > 286){ doc.addPage(); y = M; } };
+  const setFora = new Set(i.fora.map(f => f.id));
+
+  doc.setFont('helvetica','bold'); doc.setFontSize(15); doc.setTextColor(15,42,74);
+  doc.text('VERIFICADOR DIÁRIO DAS CÂMERAS', M, y); y += 6;
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(100);
+  doc.text('Relatório de inspeção diária', M, y); y += 4;
+  doc.setDrawColor(200); doc.line(M, y, W-M, y); y += 7;
+
+  doc.setTextColor(0); doc.setFontSize(11);
+  const info = [['Usuário', i.usuario], ['Data/hora', fmtDH(i.criado_em)], ['Ciente (celular da empresa)', i.ciente ? 'SIM' : 'NÃO'],
+    ['Funcionando', String(i.total - i.fora.length)], ['Fora', String(i.fora.length)]];
+  info.forEach(([k,v]) => { doc.setFont('helvetica','bold'); doc.text(k + ':', M, y); doc.setFont('helvetica','normal'); doc.text(v, M+58, y); y += 6; });
+  doc.setFont('helvetica','bold'); doc.text('Observação:', M, y); y += 5; doc.setFont('helvetica','normal');
+  doc.splitTextToSize(i.observacao || '—', W - 2*M).forEach(l => { quebra(5); doc.text(l, M, y); y += 5; });
+  y += 4;
+
+  const bloco = (titulo, nomes, rgb) => {
+    quebra(14);
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(0); doc.text(titulo, M, y); y += 5;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...rgb);
+    for (let k = 0; k < nomes.length; k += 2){
+      quebra(5);
+      doc.text('- ' + nomes[k], M+2, y);
+      if (nomes[k+1]) doc.text('- ' + nomes[k+1], W/2 + 2, y);
+      y += 4.6;
+    }
+    doc.setTextColor(0); y += 2;
+  };
+  const secao = (titulo, rgb) => { quebra(14); doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...rgb); doc.text(titulo, M, y); y += 6; };
+
+  secao(`CÂMERAS FORA (${i.fora.length})`, [185,28,28]);
+  if (!i.fora.length){ doc.setFontSize(10); doc.setTextColor(0); doc.setFont('helvetica','normal'); doc.text('Nenhuma câmera fora.', M, y); y += 7; }
+  GRUPOS.forEach(g => {
+    const n = i.fora.filter(f => +f.id.split('-')[0] === g.id).map(f => f.n);
+    if (n.length) bloco(gname(g), n, [185,28,28]);
+  });
+  y += 3;
+  secao(`CÂMERAS FUNCIONANDO (${i.total - i.fora.length})`, [22,128,61]);
+  GRUPOS.forEach(g => {
+    const n = g.itens.filter((_,k) => !setFora.has(g.id+'-'+k));
+    if (n.length) bloco(gname(g), n, [22,101,52]);
+  });
+
+  doc.save(`inspecao_${i.dia}_${i.usuario.replace(/\s+/g,'_')}.pdf`);
+}
+</script>
+</body>
+</html>

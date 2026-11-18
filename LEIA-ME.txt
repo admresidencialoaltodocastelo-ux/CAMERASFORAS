@@ -1,0 +1,64 @@
+VERIFICADOR DIÁRIO DAS CÂMERAS - v2
+====================================
+
+O QUE VEIO NO ZIP
+-----------------
+index.html            -> app (substitui o seu)
+manifest.json         -> deixa o app instalável
+sw.js                 -> funciona offline / abre mais rápido
+icon-192.png          -> ícone do app
+icon-512.png          -> ícone do app (alta resolução)
+sql_lista_nomes.sql   -> RODE ISSO NO SUPABASE (passo 1)
+LEIA-ME.txt           -> este arquivo
+
+
+PASSO 1 - SUPABASE (obrigatório)
+--------------------------------
+Sem isso a lista suspensa de nomes não carrega.
+1. Abra o Supabase do projeto > SQL Editor > New query
+2. Cole todo o conteúdo de sql_lista_nomes.sql
+3. Run
+
+
+PASSO 2 - SUBIR OS ARQUIVOS
+---------------------------
+Todos os arquivos precisam ficar na MESMA pasta, com esses nomes exatos.
+No GitHub: substitua o index.html e suba os outros 4 arquivos novos
+(manifest.json, sw.js, icon-192.png, icon-512.png).
+
+Importante: o "instalar no celular" só funciona em HTTPS
+(GitHub Pages já é HTTPS). Se abrir o arquivo direto do PC (file://),
+o app roda normal, mas não aparece a opção de instalar.
+
+
+PASSO 3 - INSTALAR NO CELULAR
+-----------------------------
+Android (Chrome):
+  abre o site > aparece o botão "INSTALAR NO CELULAR" na tela inicial
+  (ou menu dos 3 pontinhos > "Instalar app" / "Adicionar à tela inicial")
+
+iPhone (Safari):
+  botão Compartilhar (quadrado com seta) > "Adicionar à Tela de Início"
+
+Depois de instalado, abre em tela cheia, sem barra do navegador.
+Dica: abra o site uma vez e recarregue antes de instalar, para o
+service worker (offline) ser registrado.
+
+
+O QUE MUDOU NESTA VERSÃO
+------------------------
+- Acesso do usuário: lista suspensa com os nomes cadastrados
+  (não precisa mais digitar o nome)
+- ADM: opção "Salvar senha neste aparelho" (marca a caixa e o
+  e-mail/senha ficam preenchidos na próxima vez)
+- ADM: continua logado até tocar em "Sair"
+- App instalável (PWA) e com funcionamento offline das telas
+- Cores e layout renovados (cabeçalho em degradê, cartões mais suaves)
+
+
+SEGURANÇA - LEIA
+----------------
+A senha salva fica guardada no próprio aparelho (localStorage), apenas
+codificada, não criptografada. Quem tiver o celular desbloqueado e souber
+abrir o console consegue ler. Em celular compartilhado, deixe a caixa
+"Salvar senha neste aparelho" DESMARCADA.
